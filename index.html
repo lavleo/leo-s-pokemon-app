@@ -122,12 +122,11 @@
             height: 96px;
             image-rendering: pixelated;
         }
-        /* Only grayscale in the Shiny Dex */
-    #shiny .pokemon-card:not(.shiny) img {
-        filter: grayscale(100%) brightness(0.8);
-        transition: filter 0.3s;
-}
 
+        #shiny .pokemon-card:not(.shiny) img {
+            filter: grayscale(100%) brightness(0.8);
+            transition: filter 0.3s;
+        }
 
         .pokemon-card .number {
             position: absolute;
@@ -154,7 +153,6 @@
             justify-content: center;
             margin-top: 8px;
         }
-        
 
         .type-badge {
             padding: 2px 8px;
@@ -233,6 +231,139 @@
             cursor: pointer;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .modal-header h2 {
+            color: #4CAF50;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #aaa;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-secondary {
+            background: #666;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .required {
+            color: #ff4444;
+        }
+
         @media (max-width: 768px) {
             .pokemon-grid {
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -241,6 +372,10 @@
             .pokemon-card img {
                 width: 64px;
                 height: 64px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -323,9 +458,113 @@
         </div>
     </div>
 
+    <!-- Encounter Modal -->
+    <div id="encounterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Shiny Encounter</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="encounterForm" onsubmit="saveEncounter(event)">
+                <div class="form-group">
+                    <label>Pokémon <span class="required">*</span></label>
+                    <input type="text" id="modal-pokemon-name" readonly>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Game <span class="required">*</span></label>
+                        <select id="game" required>
+                            <option value="">Select game...</option>
+                            <option value="Red/Blue/Yellow">Red/Blue/Yellow</option>
+                            <option value="Gold/Silver/Crystal">Gold/Silver/Crystal</option>
+                            <option value="Ruby/Sapphire/Emerald">Ruby/Sapphire/Emerald</option>
+                            <option value="FireRed/LeafGreen">FireRed/LeafGreen</option>
+                            <option value="Diamond/Pearl/Platinum">Diamond/Pearl/Platinum</option>
+                            <option value="HeartGold/SoulSilver">HeartGold/SoulSilver</option>
+                            <option value="Black/White">Black/White</option>
+                            <option value="Black 2/White 2">Black 2/White 2</option>
+                            <option value="X/Y">X/Y</option>
+                            <option value="Omega Ruby/Alpha Sapphire">Omega Ruby/Alpha Sapphire</option>
+                            <option value="Sun/Moon">Sun/Moon</option>
+                            <option value="Ultra Sun/Ultra Moon">Ultra Sun/Ultra Moon</option>
+                            <option value="Let's Go Pikachu/Eevee">Let's Go Pikachu/Eevee</option>
+                            <option value="Sword/Shield">Sword/Shield</option>
+                            <option value="Brilliant Diamond/Shining Pearl">Brilliant Diamond/Shining Pearl</option>
+                            <option value="Legends: Arceus">Legends: Arceus</option>
+                            <option value="Scarlet/Violet">Scarlet/Violet</option>
+                            <option value="Pokémon GO">Pokémon GO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Caught</label>
+                        <input type="date" id="date-caught">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="location" placeholder="Route 1, Victory Road...">
+                    </div>
+                    <div class="form-group">
+                        <label>Method</label>
+                        <select id="method">
+                            <option value="">Select method...</option>
+                            <option value="Random Encounter">Random Encounter</option>
+                            <option value="Masuda Method">Masuda Method</option>
+                            <option value="SOS Chain">SOS Chain</option>
+                            <option value="Poké Radar">Poké Radar</option>
+                            <option value="Chain Fishing">Chain Fishing</option>
+                            <option value="Friend Safari">Friend Safari</option>
+                            <option value="Soft Reset">Soft Reset</option>
+                            <option value="Max Raid Battle">Max Raid Battle</option>
+                            <option value="Dynamax Adventure">Dynamax Adventure</option>
+                            <option value="Outbreak">Outbreak</option>
+                            <option value="Gift/Egg">Gift/Egg</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="gender">
+                            <option value="">Select...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Genderless">Genderless</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ball Used</label>
+                        <input type="text" id="ball" placeholder="Poké Ball, Ultra Ball...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nickname</label>
+                    <input type="text" id="nickname" placeholder="Optional nickname...">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" placeholder="Any additional details..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Encounter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let allPokemon = [];
         let shinyPokemon = JSON.parse(localStorage.getItem('shinyPokemon') || '{}');
+        let encounterData = JSON.parse(localStorage.getItem('encounterData') || '{}');
         let currentTab = 'pokedex';
 
         const generationRanges = {
@@ -349,13 +588,15 @@
                     try {
                         const res = await fetch(pokemon.url);
                         const details = await res.json();
+                        const gen = getGeneration(details.id);
+                        const sprites = getGenerationSprites(details, gen);
                         return {
                             id: details.id,
                             name: details.name,
-                            sprite: details.sprites.front_default || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${details.id}.png`,
-                            shinySprite: details.sprites.front_shiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${details.id}.png`,
+                            sprite: sprites.normal,
+                            shinySprite: sprites.shiny,
                             types: details.types.map(t => t.type.name),
-                            generation: getGeneration(details.id)
+                            generation: gen
                         };
                     } catch (err) {
                         console.error(`Failed to load pokemon ${index + 1}:`, err);
@@ -380,6 +621,56 @@
                 if (id >= min && id <= max) return parseInt(gen);
             }
             return 9;
+        }
+
+        function getGenerationSprites(details, gen) {
+            const id = details.id;
+            let normal, shiny;
+            
+            // Gen 1: FireRed/LeafGreen
+            if (gen === 1) {
+                normal = details.sprites.versions?.['generation-iii']?.['firered-leafgreen']?.front_default || 
+                         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/firered-leafgreen/${id}.png`;
+                shiny = details.sprites.versions?.['generation-iii']?.['firered-leafgreen']?.front_shiny || 
+                        `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/firered-leafgreen/shiny/${id}.png`;
+            }
+            // Gen 2: HeartGold/SoulSilver
+            else if (gen === 2) {
+                normal = details.sprites.versions?.['generation-iv']?.['heartgold-soulsilver']?.front_default || 
+                         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/${id}.png`;
+                shiny = details.sprites.versions?.['generation-iv']?.['heartgold-soulsilver']?.front_shiny || 
+                        `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/shiny/${id}.png`;
+            }
+            // Gen 3: Emerald (Ruby/Sapphire sprites are similar)
+            else if (gen === 3) {
+                normal = details.sprites.versions?.['generation-iii']?.emerald?.front_default || 
+                         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/${id}.png`;
+                shiny = details.sprites.versions?.['generation-iii']?.emerald?.front_shiny || 
+                        `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/shiny/${id}.png`;
+            }
+            // Gen 4: Diamond/Pearl/Platinum
+            else if (gen === 4) {
+                normal = details.sprites.versions?.['generation-iv']?.platinum?.front_default || 
+                         details.sprites.versions?.['generation-iv']?.['diamond-pearl']?.front_default ||
+                         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/${id}.png`;
+                shiny = details.sprites.versions?.['generation-iv']?.platinum?.front_shiny || 
+                        details.sprites.versions?.['generation-iv']?.['diamond-pearl']?.front_shiny ||
+                        `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/shiny/${id}.png`;
+            }
+            // Gen 5: Black/White
+            else if (gen === 5) {
+                normal = details.sprites.versions?.['generation-v']?.['black-white']?.front_default || 
+                         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${id}.png`;
+                shiny = details.sprites.versions?.['generation-v']?.['black-white']?.front_shiny || 
+                        `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/shiny/${id}.png`;
+            }
+            // Gen 6+: Use default sprites
+            else {
+                normal = details.sprites.front_default || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+                shiny = details.sprites.front_shiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
+            }
+            
+            return { normal, shiny };
         }
 
         function renderPokedex() {
@@ -412,19 +703,18 @@
                 </div>
             `).join('');
             enableHoverShinySwap();
-
         }
-        function enableHoverShinySwap() {
-    document.querySelectorAll('#pokedex .pokemon-card img').forEach(img => {
-        img.addEventListener('mouseenter', () => {
-            img.src = img.dataset.shiny;
-        });
-        img.addEventListener('mouseleave', () => {
-            img.src = img.dataset.normal;
-        });
-    });
-}
 
+        function enableHoverShinySwap() {
+            document.querySelectorAll('#pokedex .pokemon-card img').forEach(img => {
+                img.addEventListener('mouseenter', () => {
+                    img.src = img.dataset.shiny;
+                });
+                img.addEventListener('mouseleave', () => {
+                    img.src = img.dataset.normal;
+                });
+            });
+        }
 
         function renderShinyDex() {
             const searchTerm = document.getElementById('search-shiny').value.toLowerCase();
@@ -435,10 +725,10 @@
 
             const grid = document.getElementById('shiny-grid');
             grid.innerHTML = filtered.map(p => `
-                <div class="pokemon-card ${shinyPokemon[p.id] ? 'shiny' : ''}" onclick="toggleShiny(${p.id})">
+                <div class="pokemon-card ${shinyPokemon[p.id] ? 'shiny' : ''}" onclick="openEncounterModal(${p.id})">
                     <span class="number">#${String(p.id).padStart(3, '0')}</span>
                     <input type="checkbox" class="shiny-checkbox" ${shinyPokemon[p.id] ? 'checked' : ''} 
-                           onclick="event.stopPropagation(); toggleShiny(${p.id})">
+                           onclick="event.stopPropagation(); openEncounterModal(${p.id})">
                     <img src="${shinyPokemon[p.id] ? p.shinySprite : p.sprite}" alt="${p.name}">
                     <div class="name">${p.name}</div>
                     <div class="types">
@@ -448,15 +738,81 @@
             `).join('');
         }
 
-        function toggleShiny(id) {
-            if (shinyPokemon[id]) {
-                delete shinyPokemon[id];
+        let currentPokemonId = null;
+
+        function openEncounterModal(id) {
+            currentPokemonId = id;
+            const pokemon = allPokemon.find(p => p.id === id);
+            
+            document.getElementById('modal-pokemon-name').value = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+            
+            // Load existing data if available
+            const existing = encounterData[id];
+            if (existing) {
+                document.getElementById('game').value = existing.game || '';
+                document.getElementById('date-caught').value = existing.date || '';
+                document.getElementById('location').value = existing.location || '';
+                document.getElementById('method').value = existing.method || '';
+                document.getElementById('gender').value = existing.gender || '';
+                document.getElementById('ball').value = existing.ball || '';
+                document.getElementById('nickname').value = existing.nickname || '';
+                document.getElementById('notes').value = existing.notes || '';
             } else {
-                shinyPokemon[id] = true;
+                document.getElementById('encounterForm').reset();
+                document.getElementById('modal-pokemon-name').value = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
             }
+            
+            document.getElementById('encounterModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('encounterModal').classList.remove('active');
+            document.getElementById('encounterForm').reset();
+            currentPokemonId = null;
+        }
+
+        function saveEncounter(event) {
+            event.preventDefault();
+            
+            if (!currentPokemonId) return;
+            
+            const formData = {
+                game: document.getElementById('game').value,
+                date: document.getElementById('date-caught').value,
+                location: document.getElementById('location').value,
+                method: document.getElementById('method').value,
+                gender: document.getElementById('gender').value,
+                ball: document.getElementById('ball').value,
+                nickname: document.getElementById('nickname').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            // Mark as shiny
+            shinyPokemon[currentPokemonId] = true;
+            encounterData[currentPokemonId] = formData;
+            
+            // Save to localStorage
             localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemon));
+            localStorage.setItem('encounterData', JSON.stringify(encounterData));
+            
+            closeModal();
             renderShinyDex();
             updateStats();
+        }
+
+        function toggleShiny(id) {
+            if (shinyPokemon[id]) {
+                if (confirm('Remove this shiny Pokémon? This will also delete encounter data.')) {
+                    delete shinyPokemon[id];
+                    delete encounterData[id];
+                    localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemon));
+                    localStorage.setItem('encounterData', JSON.stringify(encounterData));
+                    renderShinyDex();
+                    updateStats();
+                }
+            } else {
+                openEncounterModal(id);
+            }
         }
 
         function updateStats() {
@@ -472,7 +828,9 @@
         function clearAllShinies() {
             if (confirm('Are you sure you want to clear all shiny Pokémon? This cannot be undone.')) {
                 shinyPokemon = {};
+                encounterData = {};
                 localStorage.setItem('shinyPokemon', JSON.stringify(shinyPokemon));
+                localStorage.setItem('encounterData', JSON.stringify(encounterData));
                 renderShinyDex();
                 updateStats();
             }
@@ -492,6 +850,13 @@
         document.getElementById('search-shiny').addEventListener('input', renderShinyDex);
         document.getElementById('type-filter').addEventListener('change', renderPokedex);
         document.getElementById('gen-filter').addEventListener('change', renderPokedex);
+
+        // Close modal when clicking outside
+        document.getElementById('encounterModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
 
         // Initialize
         loadPokemon();
